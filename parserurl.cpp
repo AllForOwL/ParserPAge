@@ -17,11 +17,8 @@ ParserUrl::ParserUrl(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_queueLinkPage.push_back("http://vasinnet.blogspot.com/2012/08/recommended-way-to-using-qthread.html");
-    m_queueLinkPage.push_back("http://vasinnet.blogspot.com/2012/08/recommended-way-to-using-qthread.html");
-    m_queueLinkPage.push_back("http://vasinnet.blogspot.com/2012/08/recommended-way-to-using-qthread.html");
-    m_queueLinkPage.push_back("http://vasinnet.blogspot.com/2012/08/recommended-way-to-using-qthread.html");
-    m_queueLinkPage.push_back("http://vasinnet.blogspot.com/2012/08/recommended-way-to-using-qthread.html");
+    m_quentityLink      = 0;
+    m_quentityThread    = 0;
 }
 
 ParserUrl::~ParserUrl()
@@ -48,17 +45,45 @@ void ParserUrl::AddThread(QString i_link)
     connect(_downloadPage, SIGNAL(finishedDownload(QString)), _pThread, SLOT(quit()));
     connect(_downloadPage, SIGNAL(finishedDownload(QString)), _downloadPage, SLOT(deleteLater()));
     // Удаляем поток, после выполнения операции
+    connect(_pThread, SIGNAL(finished()), this, SLOT(AddNewThreadAfterDestroyPrevious()));
     connect(_pThread, SIGNAL(finished()), _pThread, SLOT(deleteLater()));
 
     _pThread->start();
 }
 
-void ParserUrl::slotStartParsing()
+void ParserUrl::AddNewThreadAfterDestroyPrevious()
 {
-    for (int i = 0; i < 5; i++)
+    if (m_queueLinkPage.size())
     {
         AddThread(m_queueLinkPage.front());
         m_queueLinkPage.pop_front();
+    }
+
+    if (!--m_quentityLink)
+    {
+        SearchLinkOnPage();
+    }
+}
+
+void ParserUrl::slotStartParsing()
+{
+    m_quentityLink = m_queueLinkPage.size();
+
+    if (m_quentityLink >= m_quentityThread)
+    {
+        for (int i = 0; i < m_quentityThread; i++)
+        {
+            AddThread(m_queueLinkPage.front());
+            m_queueLinkPage.pop_front();
+        }
+    }
+    else
+    {
+        for (int i = 0; i < m_quentityLink; i++)
+        {
+            AddThread(m_queueLinkPage.front());
+            m_queueLinkPage.pop_front();
+        }
     }
 }
 
@@ -94,11 +119,14 @@ void ParserUrl::SearchLinkOnPage()
             }
           }
      }
+
+    emit slotStartParsing();
 }
 
 void ParserUrl::on_pushButton_clicked()
 {
     m_queueLinkPage.push_back(ui->lineEdit->text());
+    m_quentityThread = ui->lineEdit_2->text().toInt();
 
     emit slotStartParsing();
 }

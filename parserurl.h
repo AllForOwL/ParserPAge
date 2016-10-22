@@ -21,6 +21,7 @@ public:
     void SearchLinkOnPage();
 
 private slots:
+    void AddNewThreadAfterDestroyPrevious();
     void GetContentPage(QString i_contentPage);
     void replyFinished(QNetworkReply*);
     void on_pushButton_clicked();
@@ -29,6 +30,8 @@ private slots:
 private:
     Ui::ParserUrl *ui;
 
+    int                     m_quentityThread;
+    int                     m_quentityLink;
     QQueue<QString>         m_queueContentPage;
     QQueue<QString>         m_queueLinkPage;
     QString                 m_strStartUrl;

@@ -15,7 +15,7 @@ void DownloadTextPage::replyFinished(QNetworkReply* i_pReply)
 {
    QByteArray _byteTextPage = i_pReply->readAll();
    m_contentPage = _byteTextPage;
-   qDebug() << QThread::currentThreadId();
+
    emit finishedDownload(m_contentPage);
 }
 
