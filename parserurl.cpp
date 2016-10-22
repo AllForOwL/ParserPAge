@@ -2,6 +2,8 @@
 #include <QtNetwork/QNetworkReply>
 #include <QTextStream>
 #include <QUrl>
+#include <QThread>
+#include <downloadtextpage.h>
 
 #include "parserurl.h"
 #include "ui_parserurl.h"
@@ -15,9 +17,11 @@ ParserUrl::ParserUrl(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_manager = new QNetworkAccessManager();
-
-    connect(m_manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply*)));
+    m_queueLinkPage.push_back("http://vasinnet.blogspot.com/2012/08/recommended-way-to-using-qthread.html");
+    m_queueLinkPage.push_back("http://vasinnet.blogspot.com/2012/08/recommended-way-to-using-qthread.html");
+    m_queueLinkPage.push_back("http://vasinnet.blogspot.com/2012/08/recommended-way-to-using-qthread.html");
+    m_queueLinkPage.push_back("http://vasinnet.blogspot.com/2012/08/recommended-way-to-using-qthread.html");
+    m_queueLinkPage.push_back("http://vasinnet.blogspot.com/2012/08/recommended-way-to-using-qthread.html");
 }
 
 ParserUrl::~ParserUrl()
@@ -25,28 +29,45 @@ ParserUrl::~ParserUrl()
     delete ui;
 }
 
+void ParserUrl::GetContentPage(QString i_contentPage)
+{
+    m_queueContentPage.push_back(i_contentPage);
+
+    qDebug() << QThread::currentThreadId();
+}
+
+void ParserUrl::AddThread(QString i_link)
+{
+    QThread* _pThread = new QThread();
+    DownloadTextPage* _downloadPage = new DownloadTextPage(i_link);
+    _downloadPage->moveToThread(_thread);
+
+    // Соединяем сигнал started потока, со слотом process "рабочего" класса, т.е. начинается выполнение нужной работы.
+    connect(_pThread, SIGNAL(started()), _downloadPage, SLOT(StartDownload()));
+    // По завершению выходим из потока, и удаляем рабочий класс
+    connect(_downloadPage, SIGNAL(finishedDownload(QString)), this, SLOT(GetContentPage(QString)));
+    // По завершению выходим из потока, и удаляем рабочий класс
+    connect(_downloadPage, SIGNAL(finishedDownload(QString)), _pThread, SLOT(quit()));
+    connect(_downloadPage, SIGNAL(finishedDownload(QString)), _downloadPage, SLOT(deleteLater()));
+    // Удаляем поток, после выполнения операции
+    connect(_pThread, SIGNAL(finished()), _pThread, SLOT(deleteLater()));
+
+    _pThread->start();
+}
+
 void ParserUrl::slotStartParsing()
 {
-    Fetch();
+    for (int i = 0; i < 5; i++)
+    {
+        AddThread(m_queueLinkPage.front());
+        m_queueLinkPage.pop_front();
+    }
 }
 
 void ParserUrl::replyFinished(QNetworkReply* pReply)
 {
    QByteArray   _byteTextPage = pReply->readAll();
    m_queueContentPage.push_back(_byteTextPage);
-}
-
-void ParserUrl::Fetch()
-{
-    for (int i = 0; i < m_queueLinkPage.size(); i++)
-    {
-        m_manager->get(QNetworkRequest(QUrl(m_queueLinkPage[i])));          // need create new thread
-    }
-    m_queueLinkPage.clear();
-
-    SearchLinkOnPage();
-
-    emit slotStartParsing();
 }
 
 void ParserUrl::SearchLinkOnPage()

@@ -17,10 +17,11 @@ public:
     explicit ParserUrl(QWidget *parent = 0);
     ~ParserUrl();
 
-    void Fetch();
+    void AddThread(QString i_link);
     void SearchLinkOnPage();
 
 private slots:
+    void GetContentPage(QString i_content);
     void replyFinished(QNetworkReply*);
     void on_pushButton_clicked();
     void slotStartParsing();
