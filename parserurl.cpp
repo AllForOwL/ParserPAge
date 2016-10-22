@@ -32,15 +32,13 @@ ParserUrl::~ParserUrl()
 void ParserUrl::GetContentPage(QString i_contentPage)
 {
     m_queueContentPage.push_back(i_contentPage);
-
-    qDebug() << QThread::currentThreadId();
 }
 
 void ParserUrl::AddThread(QString i_link)
 {
     QThread* _pThread = new QThread();
     DownloadTextPage* _downloadPage = new DownloadTextPage(i_link);
-    _downloadPage->moveToThread(_thread);
+    _downloadPage->moveToThread(_pThread);
 
     // Соединяем сигнал started потока, со слотом process "рабочего" класса, т.е. начинается выполнение нужной работы.
     connect(_pThread, SIGNAL(started()), _downloadPage, SLOT(StartDownload()));

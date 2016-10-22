@@ -21,7 +21,7 @@ public:
     void SearchLinkOnPage();
 
 private slots:
-    void GetContentPage(QString i_content);
+    void GetContentPage(QString i_contentPage);
     void replyFinished(QNetworkReply*);
     void on_pushButton_clicked();
     void slotStartParsing();

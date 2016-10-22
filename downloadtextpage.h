@@ -17,7 +17,7 @@ public slots:
     void StartDownload();
 
 signals:
-    void finished();
+    void finishedDownload(QString i_contentPage);
 
 private:
     QString m_link;
