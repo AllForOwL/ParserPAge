@@ -57,7 +57,7 @@ private:
 
 /* Step for complete task
  * 1)Download all page;
- * 2)Search all links and add their to vector;
+ * 2)Search all links and add their to queue;
  * 3)Go to one step;
 */
 

@@ -1,12 +1,3 @@
-/*
- * Tasks 22:10:2016
- * 1)Add graphic interface(read tasks in gmail)
- * 2)Add search text
- * {
- *      simple add to searchlinkonpage code which be verify text which need search
- * }
-*/
-
 #include <QFile>
 #include <QtNetwork/QNetworkReply>
 #include <QTextStream>
@@ -20,50 +11,6 @@
 
 const QString CNT_BEGIN_LINK    = "http://";
 const QString CNT_END_LINK      = "\"";
-
-/*
- *     //create QTableView
-    tblv = new QTableView();
-    tblv->setSelectionBehavior(QAbstractItemView::SelectItems );
-    tblv->setSelectionMode( QAbstractItemView::ExtendedSelection );
-
-    //setting layout
-    mainLayout->addLayout(horLayout1);
-    mainLayout->addLayout(horLayout2);
-    mainLayout->addWidget(btnApply);
-    mainLayout->addWidget(tblv);
-    setLayout(mainLayout);
-
-}
-
-void tableView::btnApply_clicked()
-{
-    //get number of input row and column
-    nrow = lineeRow->text().toInt();
-    ncol = lineeCol->text().toInt();
-
-    //create model
-    QStandardItemModel *model = new QStandardItemModel( nrow, ncol, this );
-
-    //create QTableview Horizontal Header
-    for (int r=0; r<ncol; r++)
-        model->setHorizontalHeaderItem( r, new QStandardItem( QString("Column_ %0" ).arg(r)) );
-
-    //fill model value
-    for( int r=0; r<nrow; r++ )
-    {
-        for( int c=0; c<ncol; c++)
-        {
-            QString sstr = "[ " + QString::number(r) + " , " + QString::number(c) + " ]";
-            QStandardItem *item = new QStandardItem(QString("Idx ") + sstr);
-            model->setItem(r, c, item);
-        }
-    }
-
-    //set model
-    tblv->setModel(model);
-}
-*/
 
 ParserUrl::ParserUrl(QWidget *parent) :
     QWidget(parent),
