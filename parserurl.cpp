@@ -12,6 +12,7 @@
 #include <QTextStream>
 #include <QUrl>
 #include <QThread>
+#include <QMessageBox>
 #include <downloadtextpage.h>
 
 #include "parserurl.h"
@@ -79,9 +80,12 @@ ParserUrl::ParserUrl(QWidget *parent) :
 
     ui->tableView->setModel(m_modelTable);
 
+    m_blockSignal       = false;
     m_findText          = "";
     m_quentityLink      = 0;
     m_quentityThread    = 0;   
+    m_quentityCompleteScanning = 0;
+
 }
 
 ParserUrl::~ParserUrl()
@@ -112,20 +116,21 @@ void ParserUrl::AddThread(QString i_link)
 
 void ParserUrl::AddNewThreadAfterDestroyPrevious()
 {
-    if (m_queueLinkPage.size())
+    if (!m_blockSignal)
     {
-        AddThread(m_queueLinkPage.front());
-        m_queuLinkForChangeStatus.push_back(m_queueLinkPage.front());
-        m_queueLinkPage.pop_front();
-    }
+        if (m_queueLinkPage.size())
+        {
+            AddThread(m_queueLinkPage.front());
+            m_queuLinkForChangeStatus.push_back(m_queueLinkPage.front());
+            m_queueLinkPage.pop_front();
+        }
 
-    ui->progressBar->setValue(m_quentityLinkBegin - m_quentityLink);
+        ui->progressBar->setValue(m_quentityLinkBegin - m_quentityLink);
 
-    // (value() - minimum()) divided by maximum() - minimum().
-
-    if (!--m_quentityLink)
-    {
-        SearchLinkOnPage();
+        if (!--m_quentityLink)
+        {
+            SearchLinkOnPage();
+        }
     }
 }
 
@@ -157,6 +162,18 @@ void ParserUrl::slotStartParsing()
     }
 }
 
+void ParserUrl::StopScanningComplete()
+{
+    QMessageBox::information(this, "Інформація", "Сканування завершено!!!");
+}
+
+void ParserUrl::StopScanningUser()
+{
+   m_blockSignal = true;
+
+   QMessageBox::information(this, "Інформація", "Сканування припинено користувачем!!!");
+}
+
 void ParserUrl::replyFinished(QNetworkReply* pReply)
 {
    QByteArray   _byteTextPage = pReply->readAll();
@@ -173,6 +190,13 @@ void ParserUrl::SearchLinkOnPage()
 
     while (!m_queueContentPage.empty())
     {
+        if (m_quentityCompleteScanning >= m_quentityMaxScanningLink)
+        {
+            emit StopScanningComplete();
+            return;
+        }
+
+          ++m_quentityCompleteScanning;
           --m_quentityContentLink;
           ui->progressBar_2->setValue(m_quentityContentLinkBegin - m_quentityContentLink);
 
@@ -236,9 +260,15 @@ void ParserUrl::on_pushButton_clicked()
     m_queueLinkPage.push_back(ui->lineEdit->text());
     m_quentityThread = ui->lineEdit_2->text().toInt();
     m_findText       = ui->lineEdit_3->text();
+    m_quentityMaxScanningLink = ui->lineEdit_4->text().toInt();
 
     m_modelTable->appendRow(new QStandardItem(ui->lineEdit->text()));
     m_modelTable->setItem(0, 1, new QStandardItem("Закачка"));
 
     emit slotStartParsing();
+}
+
+void ParserUrl::on_pushButton_2_clicked()
+{
+    emit StopScanningUser();
 }

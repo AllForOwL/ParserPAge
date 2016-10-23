@@ -27,12 +27,19 @@ private slots:
     void replyFinished(QNetworkReply*);
     void on_pushButton_clicked();
     void slotStartParsing();
+    void StopScanningComplete();
+    void StopScanningUser();
+
+    void on_pushButton_2_clicked();
 
 private:
     Ui::ParserUrl *ui;
 
     QStandardItemModel*     m_modelTable;
 
+    bool                    m_blockSignal;
+    int                     m_quentityCompleteScanning;
+    int                     m_quentityMaxScanningLink;
     QString                 m_findText;
     int                     m_quentityThread;
     int                     m_quentityLink;
