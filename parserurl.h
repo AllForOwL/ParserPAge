@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QQueue>
+#include <QStandardItemModel>
 
 namespace Ui {
 class ParserUrl;
@@ -30,8 +31,15 @@ private slots:
 private:
     Ui::ParserUrl *ui;
 
+    QStandardItemModel*     m_modelTable;
+
+    QString                 m_findText;
     int                     m_quentityThread;
     int                     m_quentityLink;
+    int                     m_quentityLinkBegin;
+    int                     m_quentityContentLink;
+    int                     m_quentityContentLinkBegin;
+    QQueue<QString>         m_queuLinkForChangeStatus;
     QQueue<QString>         m_queueContentPage;
     QQueue<QString>         m_queueLinkPage;
     QString                 m_strStartUrl;
